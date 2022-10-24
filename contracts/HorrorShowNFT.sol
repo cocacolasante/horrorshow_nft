@@ -11,12 +11,42 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 import "hardhat/console.sol";
 
-contract HorrorShow is ERC721, ERC721URIStorage, ERC721Burnable, Ownable{
+contract HorrorShow is ERC721, ERC721URIStorage{
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor()ERC721("HorrorShow", "HRS"){}
+    address public admin;
+
+    // base uri
+    string public baseIPFS;
+
+    // whitelist 1
+    address[] public whitelist1;
+    uint256 public whitelist1MaxMint;
+
+    // white list 2
+    address[] public whitelist2;
+    uint256 public whitelist2MaxMint;
+
+
+    modifier onlyAdmin {
+        require(msg.sender == admin, "Not admin of contract");
+        _;
+    }
+
+    constructor()ERC721("HorrorShow", "HRS"){
+        admin = payable(msg.sender);
+    }
+
+    function addToWhitelist1(address newWhitelist) public onlyAdmin{
+        whitelist1.push(newWhitelist);
+    }
+    function addToWhitelist2(address newWhitelist) public onlyAdmin{
+        whitelist2.push(newWhitelist);
+    }
+
+    // minting function
 
     function safeMint(address to, string memory uri) public {
         uint256 tokenId = _tokenIdCounter.current();
@@ -25,8 +55,8 @@ contract HorrorShow is ERC721, ERC721URIStorage, ERC721Burnable, Ownable{
         _setTokenURI(tokenId, uri);
     }
 
-    function _baseURI() internal pure override returns (string memory) {
-        return "";
+    function _baseURI() internal view override returns (string memory) {
+        return baseIPFS;
     }
 
     // The following functions are overrides required by Solidity.
@@ -43,6 +73,7 @@ contract HorrorShow is ERC721, ERC721URIStorage, ERC721Burnable, Ownable{
     {
         return super.tokenURI(tokenId);
     }
+
 
 
 }
